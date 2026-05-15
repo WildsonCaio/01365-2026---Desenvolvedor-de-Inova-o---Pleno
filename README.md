@@ -1,4 +1,4 @@
-# 🛰️ GeoTrack - Gestão de Frota e Rastreamento em Tempo Real
+# 🛰️ GeoTrack — Gestão de Frota e Rastreamento Geográfico
 
 [![Django](https://img.shields.io/badge/Django-5.0-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![DRF](https://img.shields.io/badge/DRF-3.15-A42E2B?style=for-the-badge&logo=django&logoColor=white)](https://www.django-rest-framework.org/)
@@ -6,162 +6,384 @@
 [![Celery](https://img.shields.io/badge/Celery-5.3-37814A?style=for-the-badge&logo=celery&logoColor=white)](https://docs.celeryq.dev/)
 [![Docker](https://img.shields.io/badge/Docker-24.0-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-O **GeoTrack** é uma API backend de alta performance desenvolvida para gestão de frotas e rastreamento geográfico em tempo real. Construído com **Django 5** e **PostGIS**, o sistema lida com consultas espaciais complexas, simulação automatizada de veículos e integração climática, mantendo a resiliência como pilar central.
+O **GeoTrack** é uma plataforma para gestão e rastreamento geográfico de frotas desenvolvida como solução para o desafio técnico do processo seletivo de Desenvolvedor de Inovação Pleno do Instituto SENAI de Inovação em Sistemas Embarcados.
+
+A aplicação foi construída utilizando **Django 5**, **PostGIS** e **Celery**, com foco em:
+- processamento assíncrono;
+- consultas geoespaciais;
+- resiliência;
+- observabilidade;
+- integração com APIs externas;
+- execução completa via Docker Compose.
 
 ---
 
-## 🏛️ Arquitetura do Sistema
+# ✨ Principais Funcionalidades
 
-O projeto segue uma arquitetura baseada em containers orientada a serviços:
+- 📍 CRUD completo de veículos
+- 🌎 Consultas geográficas utilizando PostGIS
+- 🔄 Simulação automática da movimentação da frota
+- ⛅ Integração climática com Open-Meteo
+- 🛡️ Circuit Breaker para tolerância a falhas externas
+- 📊 Logs estruturados para observabilidade
+- 📚 Swagger/OpenAPI para documentação e testes
+- 🐳 Infraestrutura completa via Docker Compose
+- 🗺️ Dashboard frontend opcional com mapa interativo
+
+---
+
+# 🏛️ Arquitetura do Sistema
+
+O sistema foi estruturado utilizando arquitetura baseada em serviços/containerização.
 
 | Componente | Tecnologia | Responsabilidade |
-| :--- | :--- | :--- |
-| **API Backend** | Django 5 + DRF | Endpoints RESTful, lógica de negócio e API espacial. |
-| **Banco de Dados** | PostgreSQL + PostGIS | Armazenamento e consultas espaciais nativas. |
-| **Fila de Tarefas** | Celery + Redis | Simulação assíncrona e integração com APIs externas. |
-| **Resiliência** | PyBreaker | Implementação de Circuit Breaker para a API de clima. |
-| **Frontend** | Next.js 15 | Dashboard interativo com Mapas (Leaflet) e gestão de frota. |
+|---|---|---|
+| API Backend | Django + DRF | Endpoints REST, regras de negócio e consultas espaciais |
+| Banco de Dados | PostgreSQL + PostGIS | Persistência e operações geográficas |
+| Background Jobs | Celery + Redis | Simulação da frota e integração climática |
+| Resiliência | PyBreaker | Circuit Breaker para APIs externas |
+| Frontend (Opcional) | Next.js 15 + Leaflet | Dashboard visual da frota |
 
 ---
 
-## 🎨 Dashboard Frontend (Opcional)
+# 🐳 Como Executar o Projeto
 
-O projeto inclui uma interface moderna e responsiva para facilitar a visualização dos dados:
+## Pré-requisitos
 
-- **Mapa em Tempo Real**: Visualização geográfica de todos os veículos com cores baseadas no status.
-- **Gestão de Veículos**: Interface completa para criar, editar e excluir veículos da frota.
-- **Busca por Proximidade**: Ferramenta visual para encontrar veículos em um raio específico, com representação do raio no mapa.
-- **Integração Climática**: Exibição direta das condições meteorológicas atuais de cada veículo.
+- Docker
+- Docker Compose
 
 ---
 
-## 🚀 Como Executar
+# 🚀 Inicialização Rápida
 
-O GeoTrack pode ser executado de forma simples utilizando Docker, subindo todo o ecossistema (Back + Front) simultaneamente.
+## 1. Clonar o repositório
 
-### Pré-requisitos
-- Docker e Docker Compose instalados.
-- Arquivo `.env` configurado dentro da pasta `/geotrack` (utilize o `.env.example` como base).
-
-### Passos para execução
-
-1. **Subir os containers**:
-   Na raiz do projeto (onde está o `docker-compose.yml` principal), execute:
-   ```bash
-   docker compose up --build -d
-   ```
-
-2. **Popular o banco de dados (Opcional)**:
-   Para ver o sistema funcionando com dados reais imediatamente:
-   ```bash
-   docker compose exec app python manage.py seed
-   ```
-
-3. **Acessar as interfaces**:
-   - **Frontend (Dashboard)**: [http://localhost:3000](http://localhost:3000)
-   - **API (Backend)**: [http://localhost:8000/api](http://localhost:8000/api)
-   - **Documentação Swagger**: [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
+```bash
+git clone <repo-url>
+cd geotrack
+```
 
 ---
 
-## 🧪 Fluxo de Teste Sugerido
+## 2. Criar arquivo `.env`
 
-Para validar o funcionamento completo da aplicação:
-
-1. **Abra o Dashboard** em `localhost:3000`.
-2. **Crie um Novo Veículo**: Clique em "Novo Veículo", preencha os dados e escolha uma coordenada (ex: Florianópolis `-27.5954, -48.5480`).
-3. **Observe a Simulação**: Aguarde alguns segundos (o worker atualiza a cada 30s) e veja a posição do veículo mudar levemente no mapa e os dados climáticos surgirem.
-4. **Teste a Proximidade**: Vá na seção "Buscar Carros Próximos", insira coordenadas próximas e um raio de 10km. Veja o círculo azul no mapa e o filtro na listagem.
-5. **Edição**: Clique em "Editar" em um veículo, mude o status para "Problema" e veja o marcador no mapa mudar para vermelho instantaneamente.
-| **Documentação** | DRF-Spectacular | Documentação automática OpenAPI 3.0 (Swagger). |
-
----
-
-## 🚀 Principais Funcionalidades
-
-- **📍 Consultas Espaciais Avançadas**: Integração nativa com PostGIS para buscas por raio (km) de alta performance.
-- **🔄 Simulação Automatizada de Frota**: Tarefas em background que simulam movimento e atualizam o status dos veículos automaticamente.
-- **⛅ Integração Climática em Tempo Real**: Sincronização automática de dados meteorológicos via Open-Meteo com base na posição do veículo.
-- **🛡️ Tolerância a Falhas**: Implementação do padrão **Circuit Breaker** para garantir estabilidade durante quedas de APIs externas.
-- **📊 Observabilidade**: Sistema de logs estruturado para acompanhamento detalhado do ciclo de vida das tarefas.
-- **📚 Documentação Interativa**: Interface Swagger completa para testes rápidos da API.
-
----
-
-## 🛠️ Início Rápido
-
-### 1. Configuração do Ambiente
-Clone o repositório e crie seu arquivo de ambiente local:
 ```bash
 cp .env.example .env
 ```
 
-### 2. Subir a Infraestrutura
-Construa e inicie todos os serviços usando Docker Compose:
+---
+
+## 3. Subir toda a infraestrutura
+
+Executar na raiz do projeto
+
 ```bash
 docker compose up --build -d
 ```
 
-### 3. Inicializar Banco e Dados de Teste
-Execute as migrações e popule o sistema com 20 veículos reais distribuídos em Santa Catarina (SC):
+Esse comando iniciará:
+- backend Django;
+- PostgreSQL + PostGIS;
+- Redis;
+- Celery Worker;
+- Celery Beat;
+- frontend Next.js (opcional).
+
+---
+
+## 4. Executar migrations
+
 ```bash
 docker compose exec app python manage.py migrate
+```
+
+---
+
+## 5. Popular banco com dados iniciais
+
+```bash
 docker compose exec app python manage.py seed
 ```
 
-### 4. Explorar a API
-A documentação interativa está disponível em:
-👉 [http://localhost:8000/api/docs/](http://localhost:8000/api/docs/)
+O sistema criará automaticamente:
+- 20 veículos;
+- cidades reais de Santa Catarina;
+- coordenadas geográficas reais.
 
 ---
 
-## 📡 Endpoints Principais
+# 🌐 Acessos
+
+| Serviço | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
+| API Backend | http://localhost:8000/api |
+| Swagger/OpenAPI | http://localhost:8000/api/docs/ |
+
+---
+
+# 📡 Endpoints Principais
 
 | Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| `GET` | `/api/cars/` | Lista todos os veículos (suporta filtro de `status`). |
-| `POST` | `/api/cars/` | Registra um novo veículo na frota. |
-| `GET` | `/api/cars/nearby/` | **Busca Espacial**: Encontra veículos dentro de um raio (km). |
-| `GET` | `/api/docs/` | Interface Swagger UI interativa. |
+|---|---|---|
+| GET | `/api/cars/` | Lista veículos |
+| POST | `/api/cars/` | Cria veículo |
+| PUT | `/api/cars/{id}/` | Atualiza veículo |
+| DELETE | `/api/cars/{id}/` | Remove veículo |
+| GET | `/api/cars/?status=WORKING` | Filtra por status |
+| GET | `/api/cars/nearby/` | Consulta veículos por raio |
+| GET | `/api/docs/` | Swagger/OpenAPI |
 
 ---
 
-## 🧪 Testando a Simulação
+# 🌍 Consulta Geográfica
 
-Para monitorar a simulação em tempo real (movimento + atualizações de clima), acompanhe os logs do worker:
+O endpoint de proximidade utiliza recursos nativos do PostGIS para buscas espaciais.
+
+## Exemplo
+
+```http
+GET /api/cars/nearby/?lat=-27.5954&lon=-48.5480&radius_km=10
+```
+
+---
+
+# 🔄 Simulação Automática da Frota
+
+O sistema executa tarefas periódicas em background utilizando Celery.
+
+A cada ciclo:
+- os veículos são movimentados aleatoriamente;
+- o status é atualizado;
+- os dados climáticos são sincronizados;
+- logs são registrados.
+
+---
+
+## Configuração do intervalo
+
+Variável:
+```env
+SIMULATION_INTERVAL_SECONDS=30
+```
+
+---
+
+# ⛅ Integração Climática
+
+API utilizada:
+- Open-Meteo
+
+Dados sincronizados:
+- temperatura;
+- umidade;
+- código climático.
+
+---
+
+# 🛡️ Resiliência e Circuit Breaker
+
+A integração climática utiliza o padrão Circuit Breaker via `pybreaker`.
+
+Configuração:
+- abertura após 3 falhas consecutivas;
+- retry automático após 60 segundos.
+
+Objetivo:
+- evitar falhas em cascata;
+- manter o sistema operacional mesmo durante indisponibilidade da API externa.
+
+---
+
+# 📊 Observabilidade e Logs
+
+Os ciclos da simulação geram logs estruturados contendo:
+- início da execução;
+- veículos processados;
+- falhas de integração;
+- finalização da tarefa.
+
+---
+
+## Acompanhar logs do worker
+
 ```bash
 docker compose logs -f celery_worker
 ```
 
-**Regras da simulação:**
-- Executa a cada `SIMULATION_INTERVAL_SECONDS` (padrão: 30s).
-- Move os veículos aleatoriamente (~1km de raio).
-- Atualiza dados climáticos via Open-Meteo.
-- Altera o status aleatoriamente para simular problemas mecânicos.
+---
+
+# 🎨 Frontend (Opcional)
+
+O projeto inclui uma interface visual desenvolvida em Next.js 15.
+
+Funcionalidades:
+- dashboard da frota;
+- mapa com Leaflet;
+- CRUD visual;
+- busca geográfica;
+- indicadores em tempo real.
+
+O frontend foi desenvolvido apenas como complemento visual da API, mantendo o backend como foco principal do desafio.
 
 ---
 
-## ⚙️ Configurações de Ambiente
+# ⚙️ Variáveis de Ambiente
 
-| Variável | Padrão | Descrição |
-| :--- | :--- | :--- |
-| `DEBUG` | `True` | Ativa/Desativa o modo de depuração. |
-| `SIMULATION_INTERVAL_SECONDS` | `30` | Intervalo entre os ciclos de atualização da frota. |
-| `OPEN_METEO_TIMEOUT` | `5` | Tempo limite para requisições à API externa de clima. |
-| `POSTGRES_DB` | `geotrack` | Nome do banco de dados. |
-
----
-
-## 📜 Decisões Técnicas e Trade-offs
-
-- **Consultas Espaciais Nativas**: Ao utilizar `Distance` e `D(km=...)` do PostGIS, delegamos cálculos matemáticos complexos ao banco de dados, garantindo respostas em milissegundos.
-- **Estratégia de Circuit Breaker**: Escolhemos o `pybreaker` com `fail_max=3` e `reset_timeout=60` para evitar "falhas em cascata" quando os serviços externos de clima estão lentos ou fora do ar.
-- **Logística de Background**: O uso de Celery permite que o sistema escale horizontalmente, processando milhares de atualizações de veículos sem impactar o tempo de resposta da API para o usuário final.
+| Variável | Descrição | Padrão |
+|---|---|---|
+| DEBUG | Modo debug | True |
+| POSTGRES_DB | Nome do banco | geotrack |
+| POSTGRES_USER | Usuário do banco | postgres |
+| POSTGRES_PASSWORD | Senha do banco | postgres |
+| POSTGRES_HOST | Host do banco | postgres |
+| POSTGRES_PORT | Porta do banco | 5432 |
+| REDIS_HOST | Host Redis | redis |
+| REDIS_PORT | Porta Redis | 6379 |
+| SIMULATION_INTERVAL_SECONDS | Intervalo da simulação | 30 |
+| OPEN_METEO_TIMEOUT | Timeout API externa | 5 |
 
 ---
 
-## 🏁 Roadmap Futuro
+# 📂 Estrutura do Projeto
 
-- [ ] **Paralelização de Tarefas**: Implementar sub-tarefas por veículo para maior escalabilidade dos workers.
-- [ ] **Autenticação JWT**: Adicionar controle de acesso seguro para endpoints de gerenciamento.
-- [ ] **Integração com WebSockets**: Notificar o frontend em tempo real sobre mudanças de posição em vez de pooling.
+```text
+geotrack/
+├── backend/
+│   ├── app/
+│   ├── cars/
+│   ├── simulation/
+│   ├── weather/
+│   └── core/
+│
+├── frontend/
+│
+├── docker/
+│
+├── docs/
+│   ├── PRD.md
+│   ├── FRONTEND.md
+│   ├── ARCHITECTURE.md
+│   └── DECISIONS.md
+│
+├── docker-compose.yml
+├── .env.example
+└── README.md
+```
+
+---
+
+# 🧠 Decisões Técnicas
+
+## PostGIS
+Foi utilizado PostGIS para delegar cálculos espaciais diretamente ao banco de dados, garantindo:
+- melhor performance;
+- consultas geográficas nativas;
+- precisão geoespacial.
+
+---
+
+## Celery + Redis
+A simulação da frota foi desacoplada da API principal utilizando processamento assíncrono.
+
+Benefícios:
+- melhor escalabilidade;
+- isolamento de tarefas;
+- menor impacto na API HTTP.
+
+---
+
+## Circuit Breaker
+A integração climática utiliza Circuit Breaker para evitar:
+- retries infinitos;
+- degradação geral do sistema;
+- falhas em cascata.
+
+---
+
+# 🧪 Fluxo de Teste Recomendado
+
+## 1. Abrir Swagger
+Acesse:
+```text
+http://localhost:8000/api/docs/
+```
+
+---
+
+## 2. Criar um veículo
+
+Exemplo:
+```json
+{
+  "name": "Carro Teste",
+  "plate": "ABC1234",
+  "city": "Florianopolis",
+  "latitude": -27.5954,
+  "longitude": -48.5480,
+  "status": "WORKING"
+}
+```
+
+---
+
+## 3. Validar movimentação automática
+
+Aguardar alguns segundos e acompanhar:
+```bash
+docker compose logs -f celery_worker
+```
+
+---
+
+## 4. Testar consulta geográfica
+
+Exemplo:
+```http
+GET /api/cars/nearby/?lat=-27.5954&lon=-48.5480&radius_km=10
+```
+
+---
+
+## 5. Validar frontend
+
+Acesse:
+```text
+http://localhost:3000
+```
+
+---
+
+# 📌 Requisitos do Desafio Atendidos
+
+- [x] CRUD completo de veículos
+- [x] PostgreSQL com PostGIS
+- [x] Seed inicial com 20 veículos
+- [x] Coordenadas geográficas reais
+- [x] Simulação automática em background
+- [x] Logs estruturados
+- [x] Integração com Open-Meteo
+- [x] Circuit Breaker
+- [x] Consulta geográfica por raio
+- [x] Swagger/OpenAPI
+- [x] Docker Compose
+- [x] Frontend complementar (diferencial)
+
+---
+
+# 🚧 Possíveis Evoluções Futuras
+
+- autenticação JWT;
+- WebSockets para atualização em tempo real;
+- métricas Prometheus/Grafana;
+- filas distribuídas avançadas;
+- paralelização por veículo;
+- monitoramento avançado do Celery.
+
+---
+
+# 👨‍💻 Autor
+
+Desenvolvido como solução para o desafio técnico:
+**Processo Seletivo 01365/2026 — Instituto SENAI de Inovação em Sistemas Embarcados**
