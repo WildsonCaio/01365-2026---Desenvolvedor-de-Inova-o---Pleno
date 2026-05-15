@@ -20,6 +20,59 @@ O projeto segue uma arquitetura baseada em containers orientada a serviços:
 | **Banco de Dados** | PostgreSQL + PostGIS | Armazenamento e consultas espaciais nativas. |
 | **Fila de Tarefas** | Celery + Redis | Simulação assíncrona e integração com APIs externas. |
 | **Resiliência** | PyBreaker | Implementação de Circuit Breaker para a API de clima. |
+| **Frontend** | Next.js 15 | Dashboard interativo com Mapas (Leaflet) e gestão de frota. |
+
+---
+
+## 🎨 Dashboard Frontend (Opcional)
+
+O projeto inclui uma interface moderna e responsiva para facilitar a visualização dos dados:
+
+- **Mapa em Tempo Real**: Visualização geográfica de todos os veículos com cores baseadas no status.
+- **Gestão de Veículos**: Interface completa para criar, editar e excluir veículos da frota.
+- **Busca por Proximidade**: Ferramenta visual para encontrar veículos em um raio específico, com representação do raio no mapa.
+- **Integração Climática**: Exibição direta das condições meteorológicas atuais de cada veículo.
+
+---
+
+## 🚀 Como Executar
+
+O GeoTrack pode ser executado de forma simples utilizando Docker, subindo todo o ecossistema (Back + Front) simultaneamente.
+
+### Pré-requisitos
+- Docker e Docker Compose instalados.
+- Arquivo `.env` configurado dentro da pasta `/geotrack` (utilize o `.env.example` como base).
+
+### Passos para execução
+
+1. **Subir os containers**:
+   Na raiz do projeto (onde está o `docker-compose.yml` principal), execute:
+   ```bash
+   docker compose up --build -d
+   ```
+
+2. **Popular o banco de dados (Opcional)**:
+   Para ver o sistema funcionando com dados reais imediatamente:
+   ```bash
+   docker compose exec app python manage.py seed
+   ```
+
+3. **Acessar as interfaces**:
+   - **Frontend (Dashboard)**: [http://localhost:3000](http://localhost:3000)
+   - **API (Backend)**: [http://localhost:8000/api](http://localhost:8000/api)
+   - **Documentação Swagger**: [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
+
+---
+
+## 🧪 Fluxo de Teste Sugerido
+
+Para validar o funcionamento completo da aplicação:
+
+1. **Abra o Dashboard** em `localhost:3000`.
+2. **Crie um Novo Veículo**: Clique em "Novo Veículo", preencha os dados e escolha uma coordenada (ex: Florianópolis `-27.5954, -48.5480`).
+3. **Observe a Simulação**: Aguarde alguns segundos (o worker atualiza a cada 30s) e veja a posição do veículo mudar levemente no mapa e os dados climáticos surgirem.
+4. **Teste a Proximidade**: Vá na seção "Buscar Carros Próximos", insira coordenadas próximas e um raio de 10km. Veja o círculo azul no mapa e o filtro na listagem.
+5. **Edição**: Clique em "Editar" em um veículo, mude o status para "Problema" e veja o marcador no mapa mudar para vermelho instantaneamente.
 | **Documentação** | DRF-Spectacular | Documentação automática OpenAPI 3.0 (Swagger). |
 
 ---
