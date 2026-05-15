@@ -112,3 +112,11 @@ SPECTACULAR_SETTINGS = {
 CELERY_BROKER_URL = f"redis://{os.environ.get('REDIS_HOST', 'redis')}:{os.environ.get('REDIS_PORT', '6379')}/0"
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+CELERY_BEAT_SCHEDULE = {
+    'update_fleet_every_interval': {
+        'task': 'simulation.tasks.update_fleet_task',
+        'schedule': int(os.environ.get('SIMULATION_INTERVAL_SECONDS', 30)),
+    },
+}
+
